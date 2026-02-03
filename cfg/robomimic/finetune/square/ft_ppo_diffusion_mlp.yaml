@@ -15,7 +15,7 @@ normalization_path: ./log/robomimic/${env_name}/normalization.npz
 
 
 seed: 42
-device: cuda:0
+device: cuda
 env_name: square
 obs_dim: 23
 action_dim: 7

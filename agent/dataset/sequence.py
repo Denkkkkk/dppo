@@ -44,7 +44,7 @@ class StitchedSequenceDataset(torch.utils.data.Dataset):
         img_cond_steps=1,
         max_n_episodes=10000,
         use_img=False,
-        device="cuda:0",
+        device="cuda",
     ):
         assert (
             img_cond_steps <= cond_steps
@@ -156,7 +156,7 @@ class StitchedSequenceQLearningDataset(StitchedSequenceDataset):
         dataset_path,
         max_n_episodes=10000,
         discount_factor=1.0,
-        device="cuda:0",
+        device="cuda",
         get_mc_return=False,
         **kwargs,
     ):

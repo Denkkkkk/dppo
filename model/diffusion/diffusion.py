@@ -35,7 +35,7 @@ class DiffusionModel(nn.Module):
         obs_dim,
         action_dim,
         network_path=None,
-        device="cuda:0",
+        device="cuda",
         # Various clipping
         denoised_clip_value=1.0,
         randn_clip_value=10,

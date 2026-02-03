@@ -17,7 +17,7 @@ class GaussianModel(torch.nn.Module):
         network,
         horizon_steps,
         network_path=None,
-        device="cuda:0",
+        device="cuda",
         randn_clip_value=10,
         tanh_output=False,
     ):

@@ -16,7 +16,7 @@ from copy import deepcopy
 log = logging.getLogger(__name__)
 from util.scheduler import CosineAnnealingWarmupRestarts
 
-DEVICE = "cuda:0"
+DEVICE = "cuda"
 
 
 def to_device(x, device=DEVICE):
@@ -28,7 +28,7 @@ def to_device(x, device=DEVICE):
         print(f"Unrecognized type in `to_device`: {type(x)}")
 
 
-def batch_to_device(batch, device="cuda:0"):
+def batch_to_device(batch, device=DEVICE):
     vals = [to_device(getattr(batch, field), device) for field in batch._fields]
     return type(batch)(*vals)
 
@@ -64,6 +64,7 @@ class PreTrainAgent:
         random.seed(self.seed)
         np.random.seed(self.seed)
         torch.manual_seed(self.seed)
+        self.device = cfg.get("device", DEVICE)
 
         # Wandb
         self.use_wandb = cfg.wandb is not None

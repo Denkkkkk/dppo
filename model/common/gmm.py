@@ -17,7 +17,7 @@ class GMMModel(torch.nn.Module):
         network,
         horizon_steps,
         network_path=None,
-        device="cuda:0",
+        device="cuda",
         **kwargs,
     ):
         super().__init__()

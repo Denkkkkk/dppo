@@ -12,7 +12,7 @@ robomimic_env_cfg_path: cfg/robomimic/env_meta/${env_name}.json
 normalization_path: ${oc.env:DPPO_DATA_DIR}/robomimic/${env_name}/normalization.npz
 
 seed: 42
-device: cuda:0
+device: cuda
 env_name: transport
 obs_dim: 59
 action_dim: 14

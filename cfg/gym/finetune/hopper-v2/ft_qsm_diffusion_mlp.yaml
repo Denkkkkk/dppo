@@ -11,7 +11,7 @@ base_policy_path: ./log/gym-pretrain/hopper-medium-v2_pre_diffusion_mlp_ta4_td20
 normalization_path: ./log/gym/${env_name}/normalization.npz
 
 seed: 42
-device: cuda:0
+device: cuda
 env_name: hopper-medium-v2
 obs_dim: 11
 action_dim: 3

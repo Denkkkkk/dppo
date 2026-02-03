@@ -10,7 +10,7 @@ logdir: ${oc.env:DPPO_LOG_DIR}/robomimic-pretrain/${name}/${now:%Y-%m-%d}_${now:
 train_dataset_path: ${oc.env:DPPO_DATA_DIR}/robomimic/${env}/train.npz
 
 seed: 44
-device: cuda:0
+device: cuda
 env: square
 obs_dim: 23
 action_dim: 7

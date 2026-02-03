@@ -12,7 +12,7 @@ normalization_path: ${oc.env:DPPO_DATA_DIR}/robomimic/${env_name}/normalization.
 offline_dataset_path: ${oc.env:DPPO_DATA_DIR}/robomimic/${env_name}/train.npz
 
 seed: 42
-device: cuda:0
+device: cuda
 env_name: can
 obs_dim: 23
 action_dim: 7

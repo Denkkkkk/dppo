@@ -12,7 +12,7 @@ normalization_path: ${oc.env:DPPO_DATA_DIR}/gym/${env_name}/normalization.npz
 offline_dataset_path: ${oc.env:DPPO_DATA_DIR}/gym/${env_name}/train.npz
 
 seed: 42
-device: cuda:0
+device: cuda
 env_name: kitchen-complete-v0
 obs_dim: 60
 action_dim: 9

@@ -11,7 +11,7 @@ base_policy_path: ${oc.env:DPPO_LOG_DIR}/furniture-pretrain/lamp/lamp_med_dim_pr
 normalization_path: ${oc.env:DPPO_DATA_DIR}/furniture/${env.specific.furniture}_${env.specific.randomness}/normalization.pth
 
 seed: 42
-device: cuda:0
+device: cuda
 env_name: ${env.specific.furniture}_${env.specific.randomness}_dim
 obs_dim: 44
 action_dim: 10
