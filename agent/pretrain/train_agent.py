@@ -83,6 +83,7 @@ class PreTrainAgent:
 
         # Training params
         self.n_epochs = cfg.train.n_epochs
+        self.max_updates = cfg.train.get("max_updates", None)
         self.batch_size = cfg.train.batch_size
         self.epoch_start_ema = cfg.train.get("epoch_start_ema", 20)
         self.update_ema_freq = cfg.train.get("update_ema_freq", 10)
@@ -97,10 +98,13 @@ class PreTrainAgent:
 
         # Build dataset
         self.dataset_train = hydra.utils.instantiate(cfg.train_dataset)
+        train_num_workers = cfg.train.get(
+            "num_workers", 4 if self.dataset_train.device == "cpu" else 0
+        )
         self.dataloader_train = torch.utils.data.DataLoader(
             self.dataset_train,
             batch_size=self.batch_size,
-            num_workers=4 if self.dataset_train.device == "cpu" else 0,
+            num_workers=train_num_workers,
             shuffle=True,
             pin_memory=True if self.dataset_train.device == "cpu" else False,
         )
@@ -109,10 +113,13 @@ class PreTrainAgent:
             val_indices = self.dataset_train.set_train_val_split(cfg.train.train_split)
             self.dataset_val = deepcopy(self.dataset_train)
             self.dataset_val.set_indices(val_indices)
+            val_num_workers = cfg.train.get(
+                "num_workers", 4 if self.dataset_val.device == "cpu" else 0
+            )
             self.dataloader_val = torch.utils.data.DataLoader(
                 self.dataset_val,
                 batch_size=self.batch_size,
-                num_workers=4 if self.dataset_val.device == "cpu" else 0,
+                num_workers=val_num_workers,
                 shuffle=True,
                 pin_memory=True if self.dataset_val.device == "cpu" else False,
             )
@@ -144,16 +151,18 @@ class PreTrainAgent:
             return
         self.ema.update_model_average(self.ema_model, self.model)
 
-    def save_model(self):
+    def save_model(self, step=None):
         """
         saves model and ema to disk;
         """
+        checkpoint_step = self.epoch if step is None else int(step)
         data = {
             "epoch": self.epoch,
+            "step": checkpoint_step,
             "model": self.model.state_dict(),
             "ema": self.ema_model.state_dict(),
         }
-        savepath = os.path.join(self.checkpoint_dir, f"state_{self.epoch}.pt")
+        savepath = os.path.join(self.checkpoint_dir, f"state_{checkpoint_step}.pt")
         torch.save(data, savepath)
         log.info(f"Saved model to {savepath}")
 

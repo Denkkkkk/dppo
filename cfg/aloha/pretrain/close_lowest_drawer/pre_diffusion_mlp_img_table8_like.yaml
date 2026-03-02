@@ -1,0 +1,99 @@
+defaults:
+  - _self_
+
+hydra:
+  run:
+    dir: ${logdir}
+
+_target_: agent.pretrain.train_diffusion_agent.TrainDiffusionAgent
+
+# NOTE: This is "Table 8-like" under the current codebase.
+# Exact paper match is not possible here because this repo provides ViTEncoder (not ResNet-18) for vision DP.
+name: close_lowest_drawer_pre_diffusion_mlp_img_table8_like_ta${horizon_steps}_td${denoising_steps}_ep${train.n_epochs}
+logdir: /home/lidongquan/lidongquan-data/dsrl/logs/aloha-pretrain/${name}/${now:%Y-%m-%d}_${now:%H-%M-%S}_${seed}
+
+train_dataset_path: /home/lidongquan/lidongquan-data/dsrl/datasets/close_the_lowest_drawer_dppo_img_table8/train_10ep_img.npz
+
+seed: 42
+device: cuda
+env: close_lowest_drawer
+obs_dim: 28
+action_dim: 14
+denoising_steps: 100
+horizon_steps: 1
+cond_steps: 1
+img_cond_steps: 1
+
+wandb: null
+
+shape_meta:
+  obs:
+    rgb:
+      shape: [3, 96, 96]
+    state:
+      shape: [28]
+  action:
+    shape: [14]
+
+train:
+  n_epochs: 3500
+  max_updates: 3500
+  batch_size: 256
+  learning_rate: 3e-4
+  weight_decay: 1e-6
+  num_workers: 0
+  lr_scheduler:
+    first_cycle_steps: 3500
+    warmup_steps: 0
+    min_lr: 1e-5
+  save_model_freq: 250
+  log_freq: 1
+
+model:
+  _target_: model.diffusion.diffusion.DiffusionModel
+  predict_epsilon: True
+  denoised_clip_value: 1.0
+  network:
+    _target_: model.diffusion.mlp_diffusion.VisionDiffusionMLP
+    backbone:
+      _target_: model.common.vit.VitEncoder
+      obs_shape: ${shape_meta.obs.rgb.shape}
+      num_channel: ${eval:'3 * ${img_cond_steps}'}
+      img_h: ${shape_meta.obs.rgb.shape[1]}
+      img_w: ${shape_meta.obs.rgb.shape[2]}
+      cfg:
+        patch_size: 8
+        depth: 3
+        embed_dim: 128
+        num_heads: 1
+        embed_style: embed2
+        embed_norm: 0
+    img_cond_steps: ${img_cond_steps}
+    augment: False
+    spatial_emb: 128
+    time_dim: 32
+    mlp_dims: [1024, 1024, 1024]
+    residual_style: True
+    cond_dim: ${eval:'${obs_dim} * ${cond_steps}'}
+    horizon_steps: ${horizon_steps}
+    action_dim: ${action_dim}
+  horizon_steps: ${horizon_steps}
+  obs_dim: ${obs_dim}
+  action_dim: ${action_dim}
+  denoising_steps: ${denoising_steps}
+  device: ${device}
+  use_ddim: True
+  ddim_steps: 8
+
+ema:
+  decay: 0.995
+
+train_dataset:
+  _target_: agent.dataset.sequence.StitchedSequenceDataset
+  use_img: True
+  dataset_path: ${train_dataset_path}
+  horizon_steps: ${horizon_steps}
+  cond_steps: ${cond_steps}
+  img_cond_steps: ${img_cond_steps}
+  max_n_episodes: 10
+  device: ${device}

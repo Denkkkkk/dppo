@@ -18,15 +18,28 @@ class TrainDiffusionAgent(PreTrainAgent):
         super().__init__(cfg)
 
     def run(self):
-
         timer = Timer()
         self.epoch = 1
         cnt_batch = 0
-        for _ in range(self.n_epochs):
+        next_save_update = (
+            self.save_model_freq if self.max_updates is not None else None
+        )
+
+        # If max_updates is set, stop exactly after that many optimizer steps.
+        while True:
+            if self.max_updates is None:
+                if self.epoch > self.n_epochs:
+                    break
+            else:
+                if cnt_batch >= self.max_updates:
+                    break
 
             # train
             loss_train_epoch = []
             for batch_train in self.dataloader_train:
+                if self.max_updates is not None and cnt_batch >= self.max_updates:
+                    break
+
                 if self.dataset_train.device == "cpu":
                     batch_train = batch_to_device(batch_train, self.device)
 
@@ -42,6 +55,10 @@ class TrainDiffusionAgent(PreTrainAgent):
                 if cnt_batch % self.update_ema_freq == 0:
                     self.step_ema()
                 cnt_batch += 1
+
+            if len(loss_train_epoch) == 0:
+                break
+
             loss_train = np.mean(loss_train_epoch)
 
             # validate
@@ -60,13 +77,26 @@ class TrainDiffusionAgent(PreTrainAgent):
             self.lr_scheduler.step()
 
             # save model
-            if self.epoch % self.save_model_freq == 0 or self.epoch == self.n_epochs:
-                self.save_model()
+            reached_max_updates = (
+                self.max_updates is not None and cnt_batch >= self.max_updates
+            )
+            reached_max_epochs = (
+                self.max_updates is None and self.epoch == self.n_epochs
+            )
+            if self.max_updates is None:
+                if self.epoch % self.save_model_freq == 0 or reached_max_epochs:
+                    self.save_model()
+            else:
+                while next_save_update is not None and cnt_batch >= next_save_update:
+                    self.save_model(step=next_save_update)
+                    next_save_update += self.save_model_freq
+                if reached_max_updates and cnt_batch % self.save_model_freq != 0:
+                    self.save_model(step=cnt_batch)
 
             # log loss
             if self.epoch % self.log_freq == 0:
                 log.info(
-                    f"{self.epoch}: train loss {loss_train:8.4f} | t:{timer():8.4f}"
+                    f"{self.epoch}: train loss {loss_train:8.4f} | updates {cnt_batch:8d} | t:{timer():8.4f}"
                 )
                 if self.use_wandb:
                     if loss_val is not None:
@@ -76,6 +106,7 @@ class TrainDiffusionAgent(PreTrainAgent):
                     wandb.log(
                         {
                             "loss - train": loss_train,
+                            "train/updates": cnt_batch,
                         },
                         step=self.epoch,
                         commit=True,
