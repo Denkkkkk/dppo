@@ -10,9 +10,9 @@ _target_: agent.pretrain.train_diffusion_agent.TrainDiffusionAgent
 # NOTE: This is "Table 8-like" under the current codebase.
 # Exact paper match is not possible here because this repo provides ViTEncoder (not ResNet-18) for vision DP.
 name: close_lowest_drawer_pre_diffusion_mlp_img_table8_like_ta${horizon_steps}_td${denoising_steps}_ep${train.n_epochs}
-logdir: /home/lidongquan/lidongquan-data/dsrl/logs/aloha-pretrain/${name}/${now:%Y-%m-%d}_${now:%H-%M-%S}_${seed}
+logdir: /home/mobilealoha/文档/lidongquan-data/dsrl/logs/aloha-pretrain/${name}/${now:%Y-%m-%d}_${now:%H-%M-%S}_${seed}
 
-train_dataset_path: /home/lidongquan/lidongquan-data/dsrl/datasets/close_the_lowest_drawer_dppo_img_table8/train_10ep_img.npz
+train_dataset_path: /home/mobilealoha/文档/lidongquan-data/dsrl/datasets/close_the_lowest_drawer_dppo_img_table8/train_10ep_img.npz
 
 seed: 42
 device: cuda
