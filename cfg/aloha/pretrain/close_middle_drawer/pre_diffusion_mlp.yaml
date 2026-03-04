@@ -8,9 +8,9 @@ hydra:
 _target_: agent.pretrain.train_diffusion_agent.TrainDiffusionAgent
 
 name: ${env}_pre_diffusion_mlp_ta${horizon_steps}_td${denoising_steps}_ep${train.n_epochs}
-logdir: /home/lidongquan/lidongquan-data/dsrl/logs/aloha-pretrain/${name}/${now:%Y-%m-%d}_${now:%H-%M-%S}_${seed}
+logdir: ./logs/aloha-pretrain/${name}/${now:%Y-%m-%d}_${now:%H-%M-%S}_${seed}
 
-train_dataset_path: /home/lidongquan/lidongquan-data/dsrl/datasets/close_the_middle_drawer_dppo/train_10ep.npz
+train_dataset_path: ./datasets/close_the_middle_drawer_dppo/train_10ep.npz
 
 seed: 42
 device: cuda
